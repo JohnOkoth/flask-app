@@ -1,0 +1,11 @@
+{
+  "name": "flask-electron-app",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^13.1.7"
+  }
+}

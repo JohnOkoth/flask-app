@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User and Car Information Form</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchOptions('car_types', 'carType');
+            fetchOptions('vehicle_use', 'vehicleUse');
+            fetchOptions('car_years', 'carYear');
+
+            // Slider input listener for biasFactor
+            document.getElementById('biasFactor').addEventListener('input', function() {
+                document.getElementById('biasFactorValue').textContent = this.value;
+            });
+        });
+
+        function fetchOptions(endpoint, elementId) {
+            fetch(`http://127.0.0.1:5000/options/${endpoint}`)
+                .then(response => response.json())
+                .then(data => populateSelect(elementId, data))
+                .catch(error => console.error('Error loading ' + endpoint + ':', error));
+        }
+
+        function populateSelect(elementId, options) {
+            const select = document.getElementById(elementId);
+            options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option;
+                opt.innerText = option;
+                select.appendChild(opt);
+            });
+        }
+
+        function submitForm(event) {
+            event.preventDefault(); // Prevent the form from submitting in the traditional way
+
+            const userInfo = {
+                user_id: document.getElementById('userId').value,
+                personal_information: {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    dob: document.getElementById('dob').value,
+                    gender: document.getElementById('gender').value
+                },
+                car_information: {
+                    type: document.getElementById('carType').value,
+                    use: document.getElementById('vehicleUse').value,
+                    make: document.getElementById('carMake').value,
+                    model: document.getElementById('carModel').value,
+                    year: document.getElementById('carYear').value
+                },
+                bias_factor: parseFloat(document.getElementById('biasFactor').value)  // Include the bias factor
+            };
+
+            fetch('http://127.0.0.1:5000/user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userInfo)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert("Submission Successful");
+                // Display the computed rates in the form
+                document.getElementById('rate').value = data.rate;
+                document.getElementById('rate2').value = data.rate2;
+                document.getElementById('rate3').value = data.rate3;
+                document.getElementById('rate4').value = data.rate4;  // New field for rate4
+
+            })
+            .catch(error => console.error('Submission error:', error));
+        }
+
+    </script>
+</head>
+<body>
+    <h2>Enter User and Car Information</h2>
+    <form id="userInfoForm" onsubmit="submitForm(event); return false;">
+        <fieldset>
+            <legend>Personal Information</legend>
+            <label for="userId">User ID:</label><br>
+            <input type="text" id="userId" name="userId" required><br>
+
+            <label for="name">Name:</label><br>
+            <input type="text" id="name" name="name" required><br>
+
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required><br>
+
+            <label for="dob">Date of Birth:</label><br>
+            <input type="date" id="dob" name="dob" required><br>
+
+            <label for="gender">Gender:</label><br>
+            <select id="gender" name="gender" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Car Information</legend>
+            <label for="vehicleUse">Vehicle Use:</label><br>
+            <select id="vehicleUse" name="vehicleUse" required></select><br>
+
+            <label for="carType">Car Type:</label><br>
+            <select id="carType" name="carType" required></select><br>
+
+            <label for="carMake">Car Make:</label><br>
+            <input type="text" id="carMake" name="carMake" required><br>
+
+            <label for="carModel">Car Model:</label><br>
+            <input type="text" id="carModel" name="carModel" required><br>
+
+            <label for="carYear">Car Year:</label><br>
+            <select id="carYear" name="carYear" required></select><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Computed Rates</legend>
+            <!-- Display fields for computed rates -->
+            <label for="rate">Computed Rate:</label><br>
+            <input type="text" id="rate" name="rate" readonly><br>
+
+            <label for="rate2">Computed Rate2:</label><br>
+            <input type="text" id="rate2" name="rate2" readonly><br>
+
+            <label for="biasFactor">Bias Factor:</label><br>
+            <input type="range" id="biasFactor" name="biasFactor" min="5.31972" max="5.60282946" value="5.31972" step="0.001" required>
+            <span id="biasFactorValue">5.31972</span><br>
+
+            <label for="rate3">Computed Rate3 (UBI):</label><br>
+            <input type="text" id="rate3" name="rate3" readonly><br>
+
+            <label for="rate4">Computed Rate4 (User-selected Bias):</label><br>
+            <input type="text" id="rate4" name="rate4" readonly><br>
+        </fieldset>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
