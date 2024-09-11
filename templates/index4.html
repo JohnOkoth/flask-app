@@ -17,7 +17,7 @@
         });
 
         function fetchOptions(endpoint, elementId) {
-            fetch(`http://127.0.0.1:5000/options/${endpoint}`)
+            fetch(`https://flask-app-s3yo.onrender.com/options/${endpoint}`)
                 .then(response => response.json())
                 .then(data => populateSelect(elementId, data))
                 .catch(error => console.error('Error loading ' + endpoint + ':', error));
@@ -54,7 +54,7 @@
                 bias_factor: parseFloat(document.getElementById('biasFactor').value)  // Include the bias factor
             };
 
-            fetch(`https://your-app-name.onrender.com/user`, {
+            fetch(`https://flask-app-s3yo.onrender.com/user`, {
     		method: 'POST',
     		headers: { 'Content-Type': 'application/json' },
     		body: JSON.stringify(userInfo)
