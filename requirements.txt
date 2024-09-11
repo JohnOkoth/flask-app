@@ -49,7 +49,7 @@ six==1.16.0
 slicer==0.0.7
 tensorboard==2.16.2
 tensorboard-data-server==0.7.2
-tensorflow==2.9.0  # Or any compatible version for your Python
+tensorflow==2.15.0
 tensorflow-io-gcs-filesystem==0.31.0
 termcolor==2.4.0
 threadpoolctl==3.3.0
