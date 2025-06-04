@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User and Car Information Form</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script>
+        // Base URL of the API. Change this if running locally.
+        const baseUrl = window.BASE_URL || 'https://flask-app-s3yo.onrender.com';
         document.addEventListener('DOMContentLoaded', function() {
             fetchOptions('car_types', 'carType');
             fetchOptions('vehicle_use', 'vehicleUse');
@@ -14,10 +18,13 @@
             document.getElementById('biasFactor').addEventListener('input', function() {
                 document.getElementById('biasFactorValue').textContent = this.value;
             });
+
+            document.getElementById('userInfoForm').addEventListener('input', validateForm);
+            validateForm();
         });
 
         function fetchOptions(endpoint, elementId) {
-            fetch(`https://flask-app-s3yo.onrender.com/options/${endpoint}`)
+            fetch(`${baseUrl}/options/${endpoint}`)
                 .then(response => response.json())
                 .then(data => populateSelect(elementId, data))
                 .catch(error => console.error('Error loading ' + endpoint + ':', error));
@@ -33,8 +40,20 @@
             });
         }
 
+        function validateForm() {
+            const email = document.getElementById('email').value;
+            const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            const requiredValid = Array.from(document.querySelectorAll('#userInfoForm [required]'))
+                .every(el => el.value.trim() !== '');
+            document.getElementById('submitBtn').disabled = !(emailValid && requiredValid);
+            return emailValid && requiredValid;
+        }
+
         function submitForm(event) {
             event.preventDefault(); // Prevent the form from submitting in the traditional way
+            if (!validateForm()) {
+                return;
+            }
 
             const userInfo = {
                 user_id: document.getElementById('userId').value,
@@ -54,7 +73,7 @@
                 bias_factor: parseFloat(document.getElementById('biasFactor').value)  // Include the bias factor
             };
 
-            fetch(`https://flask-app-s3yo.onrender.com/user`, {
+            fetch(`${baseUrl}/user`, {
     		method: 'POST',
     		headers: { 'Content-Type': 'application/json' },
     		body: JSON.stringify(userInfo)
@@ -79,70 +98,107 @@
         }
 
     </script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
-    <h2>Enter User and Car Information</h2>
-    <form id="userInfoForm" onsubmit="submitForm(event); return false;">
-        <fieldset>
-            <legend>Personal Information</legend>
-            <label for="userId">User ID:</label><br>
-            <input type="text" id="userId" name="userId" required><br>
+<body class="container py-4">
+    <h2 class="mb-4">Enter User and Car Information</h2>
+    <form id="userInfoForm" class="needs-validation" novalidate onsubmit="submitForm(event); return false;">
+        <div class="row">
+            <div class="col-md-6">
+                <fieldset class="border p-3 mb-3">
+                    <legend class="w-auto px-2">Personal Information</legend>
+                    <div class="mb-3">
+                        <label for="userId" class="form-label">User ID</label>
+                        <input type="text" class="form-control" id="userId" name="userId" required>
+                    </div>
 
-            <label for="name">Name:</label><br>
-            <input type="text" id="name" name="name" required><br>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
 
-            <label for="email">Email:</label><br>
-            <input type="email" id="email" name="email" required><br>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
 
-            <label for="dob">Date of Birth:</label><br>
-            <input type="date" id="dob" name="dob" required><br>
+                    <div class="mb-3">
+                        <label for="dob" class="form-label">Date of Birth</label>
+                        <input type="date" class="form-control" id="dob" name="dob" required>
+                    </div>
 
-            <label for="gender">Gender:</label><br>
-            <select id="gender" name="gender" required>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-            </select><br>
+                    <div class="mb-3">
+                        <label for="gender" class="form-label">Gender</label>
+                        <select id="gender" class="form-select" name="gender" required>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="col-md-6">
+                <fieldset class="border p-3 mb-3">
+                    <legend class="w-auto px-2">Car Information</legend>
+                    <div class="mb-3">
+                        <label for="vehicleUse" class="form-label">Vehicle Use</label>
+                        <select id="vehicleUse" class="form-select" name="vehicleUse" required></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="carType" class="form-label">Car Type</label>
+                        <select id="carType" class="form-select" name="carType" required></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="carMake" class="form-label">Car Make</label>
+                        <input type="text" class="form-control" id="carMake" name="carMake" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="carModel" class="form-label">Car Model</label>
+                        <input type="text" class="form-control" id="carModel" name="carModel" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="carYear" class="form-label">Car Year</label>
+                        <select id="carYear" class="form-select" name="carYear" required></select>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <fieldset class="border p-3 mb-3">
+            <legend class="w-auto px-2">Computed Rates</legend>
+            <div class="mb-3">
+                <label for="rate" class="form-label">Computed Rate</label>
+                <input type="text" class="form-control" id="rate" name="rate" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="rate2" class="form-label">Computed Rate2</label>
+                <input type="text" class="form-control" id="rate2" name="rate2" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="biasFactor" class="form-label">Bias Factor</label>
+                <input type="range" class="form-range" id="biasFactor" name="biasFactor" min="5.31972" max="5.60282946" value="5.31972" step="0.001" required>
+                <span id="biasFactorValue">5.31972</span>
+            </div>
+
+            <div class="mb-3">
+                <label for="rate3" class="form-label">Computed Rate3 (UBI)</label>
+                <input type="text" class="form-control" id="rate3" name="rate3" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="rate4" class="form-label">Computed Rate4 (User-selected Bias)</label>
+                <input type="text" class="form-control" id="rate4" name="rate4" readonly>
+            </div>
         </fieldset>
 
-        <fieldset>
-            <legend>Car Information</legend>
-            <label for="vehicleUse">Vehicle Use:</label><br>
-            <select id="vehicleUse" name="vehicleUse" required></select><br>
-
-            <label for="carType">Car Type:</label><br>
-            <select id="carType" name="carType" required></select><br>
-
-            <label for="carMake">Car Make:</label><br>
-            <input type="text" id="carMake" name="carMake" required><br>
-
-            <label for="carModel">Car Model:</label><br>
-            <input type="text" id="carModel" name="carModel" required><br>
-
-            <label for="carYear">Car Year:</label><br>
-            <select id="carYear" name="carYear" required></select><br>
-        </fieldset>
-
-        <fieldset>
-            <legend>Computed Rates</legend>
-            <!-- Display fields for computed rates -->
-            <label for="rate">Computed Rate:</label><br>
-            <input type="text" id="rate" name="rate" readonly><br>
-
-            <label for="rate2">Computed Rate2:</label><br>
-            <input type="text" id="rate2" name="rate2" readonly><br>
-
-            <label for="biasFactor">Bias Factor:</label><br>
-            <input type="range" id="biasFactor" name="biasFactor" min="5.31972" max="5.60282946" value="5.31972" step="0.001" required>
-            <span id="biasFactorValue">5.31972</span><br>
-
-            <label for="rate3">Computed Rate3 (UBI):</label><br>
-            <input type="text" id="rate3" name="rate3" readonly><br>
-
-            <label for="rate4">Computed Rate4 (User-selected Bias):</label><br>
-            <input type="text" id="rate4" name="rate4" readonly><br>
-        </fieldset>
-
-        <button type="submit">Submit</button>
+        <button type="submit" id="submitBtn" class="btn btn-primary" disabled>Submit</button>
     </form>
 </body>
 </html>
